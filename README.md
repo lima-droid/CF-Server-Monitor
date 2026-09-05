@@ -5,7 +5,7 @@
 基于 Cloudflare Workers、D1 和 Durable Objects 的轻量级多服务器监控面板。
 
 <p>
-  <a href="README.md">简体中文</a>
+  <a href="README.md">简体中文1</a>
   |
   <a href="README-en.md">English</a>
 </p>
