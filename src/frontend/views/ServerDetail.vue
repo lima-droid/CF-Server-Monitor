@@ -306,10 +306,10 @@
           </span>
           <div class="chart-header-actions">
             <div class="ping-indicator">
-              <span v-if="avgLossCt !== null" class="ping-ct">{{ trans.pingCt }} <b>{{ avgLossCt }}%</b></span>
-              <span v-if="avgLossCu !== null" class="ping-cu">{{ trans.pingCu }} <b>{{ avgLossCu }}%</b></span>
-              <span v-if="avgLossCm !== null" class="ping-cm">{{ trans.pingCm }} <b>{{ avgLossCm }}%</b></span>
-              <span v-if="avgLossBd !== null" class="ping-bd">{{ trans.pingBd }} <b>{{ avgLossBd }}%</b></span>
+              <span v-if="avgLossCt !== null" class="ping-ct">{{ pingLabel('ct') }} <b>{{ avgLossCt }}%</b></span>
+              <span v-if="avgLossCu !== null" class="ping-cu">{{ pingLabel('cu') }} <b>{{ avgLossCu }}%</b></span>
+              <span v-if="avgLossCm !== null" class="ping-cm">{{ pingLabel('cm') }} <b>{{ avgLossCm }}%</b></span>
+              <span v-if="avgLossBd !== null" class="ping-bd">{{ pingLabel('bd') }} <b>{{ avgLossBd }}%</b></span>
             </div>
             <ChartExpandButton :expanded="isChartExpanded('loss')" @toggle="toggleChartExpanded('loss')" />
           </div>
@@ -451,6 +451,7 @@ const PING_FIELD_DEFS = [
   { field: 'ping_cm', lossField: 'loss_cm', labelKey: 'pingCm', className: 'ping-cm', datasetIndex: 2 },
   { field: 'ping_bd', lossField: 'loss_bd', labelKey: 'pingBd', className: 'ping-bd', datasetIndex: 3 }
 ]
+const pingLabel = (key) => String(appConfig?.[`custom_${key}_name`] || trans.value[`ping${key.toUpperCase().charAt(0)}${key.slice(1)}`] || key.toUpperCase())
 
 const DISK_IO_FIELDS = ['read_bps', 'write_bps', 'read_iops', 'write_iops', 'await_ms', 'util']
 const EMPTY_DISK_IO = Object.freeze(Object.fromEntries(DISK_IO_FIELDS.map(field => [field, 0])))
@@ -822,8 +823,8 @@ const CHART_DEFS = [
   { key: 'proc', ref: () => procChartRef.value, datasets: [ds('Processes', '#f778ba', { fill: true })] },
   { key: 'net', ref: () => netChartRef.value, datasets: [ds('Download', '#00d4aa', { fill: true }), ds('Upload', '#4da6ff', { fill: true })], legend: true, formatValue: (v) => formatBytes(v) + '/s', tickFormat: (v) => formatBytes(v) },
   { key: 'conn', ref: () => connChartRef.value, datasets: [ds('TCP', '#b392f0'), ds('UDP', '#f778ba')], legend: true },
-  { key: 'ping', ref: () => pingChartRef.value, datasets: [ds('CT', '#00d4aa', { tension: 0.3 }), ds('CU', '#ffb870', { tension: 0.3 }), ds('CM', '#4da6ff', { tension: 0.3 }), ds('BGP', '#b392f0', { tension: 0.3 })], unit: ' ms', legend: true },
-  { key: 'loss', ref: () => lossChartRef.value, datasets: [ds('CT', '#00d4aa', { tension: 0.3 }), ds('CU', '#ffb870', { tension: 0.3 }), ds('CM', '#4da6ff', { tension: 0.3 }), ds('BGP', '#b392f0', { tension: 0.3 })], unit: '%', legend: true },
+  { key: 'ping', ref: () => pingChartRef.value, datasets: [ds(pingLabel('ct'), '#00d4aa', { tension: 0.3 }), ds(pingLabel('cu'), '#ffb870', { tension: 0.3 }), ds(pingLabel('cm'), '#4da6ff', { tension: 0.3 }), ds(pingLabel('bd'), '#b392f0', { tension: 0.3 })], unit: ' ms', legend: true },
+  { key: 'loss', ref: () => lossChartRef.value, datasets: [ds(pingLabel('ct'), '#00d4aa', { tension: 0.3 }), ds(pingLabel('cu'), '#ffb870', { tension: 0.3 }), ds(pingLabel('cm'), '#4da6ff', { tension: 0.3 }), ds(pingLabel('bd'), '#b392f0', { tension: 0.3 })], unit: '%', legend: true },
   { key: 'load', ref: () => loadChartRef.value, datasets: [ds(trans.value.load1m || '1 Min', '#00d4aa', { tension: 0.3 }), ds(trans.value.load5m || '5 Min', '#ffb870', { tension: 0.3 }), ds(trans.value.load15m || '15 Min', '#4da6ff', { tension: 0.3 })], legend: true }
 ]
 

@@ -116,16 +116,16 @@
 
         <div class="batch-edit-section">
           <div class="section-subtitle">{{ trans.pingNodes }}</div>
-          <BatchEditField :enabled="enabled.custom_ct" :label="trans.customCt" @toggle="toggleField('custom_ct', $event)">
+          <BatchEditField :enabled="enabled.custom_ct" :label="settings.custom_ct_name || trans.customCt" @toggle="toggleField('custom_ct', $event)">
             <input type="text" v-model.trim="form.custom_ct" class="form-input" :disabled="!enabled.custom_ct" :placeholder="settings.custom_ct || 'gd-ct-dualstack.ip.zstaticcdn.com'">
           </BatchEditField>
-          <BatchEditField :enabled="enabled.custom_cu" :label="trans.customCu" @toggle="toggleField('custom_cu', $event)">
+          <BatchEditField :enabled="enabled.custom_cu" :label="settings.custom_cu_name || trans.customCu" @toggle="toggleField('custom_cu', $event)">
             <input type="text" v-model.trim="form.custom_cu" class="form-input" :disabled="!enabled.custom_cu" :placeholder="settings.custom_cu || 'gd-cu-dualstack.ip.zstaticcdn.com'">
           </BatchEditField>
-          <BatchEditField :enabled="enabled.custom_cm" :label="trans.customCm" @toggle="toggleField('custom_cm', $event)">
+          <BatchEditField :enabled="enabled.custom_cm" :label="settings.custom_cm_name || trans.customCm" @toggle="toggleField('custom_cm', $event)">
             <input type="text" v-model.trim="form.custom_cm" class="form-input" :disabled="!enabled.custom_cm" :placeholder="settings.custom_cm || 'gd-cm-dualstack.ip.zstaticcdn.com'">
           </BatchEditField>
-          <BatchEditField :enabled="enabled.custom_bd" :label="trans.customBd" @toggle="toggleField('custom_bd', $event)">
+          <BatchEditField :enabled="enabled.custom_bd" :label="settings.custom_bd_name || trans.customBd" @toggle="toggleField('custom_bd', $event)">
             <input type="text" v-model.trim="form.custom_bd" class="form-input" :disabled="!enabled.custom_bd" :placeholder="settings.custom_bd || 'ip.zstaticcdn.com'">
           </BatchEditField>
         </div>
@@ -214,4 +214,3 @@ const openDatePicker = (event) => {
 }
 
 </script>
-

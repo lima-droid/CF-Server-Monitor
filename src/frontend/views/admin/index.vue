@@ -941,6 +941,10 @@ const settings = ref({
   custom_cu: '',
   custom_cm: '',
   custom_bd: '',
+  custom_ct_name: '电信',
+  custom_cu_name: '联通',
+  custom_cm_name: '移动',
+  custom_bd_name: 'BGP',
   theme_url: '',
   csp_static: '',
   csp_api: ''
@@ -1111,10 +1115,10 @@ watch(isWssReportEnabled, (enabled) => {
 })
 
 const getPingNodeLabel = (field) => ({
-  custom_ct: trans.value.customCt,
-  custom_cu: trans.value.customCu,
-  custom_cm: trans.value.customCm,
-  custom_bd: trans.value.customBd
+  custom_ct: settings.value.custom_ct_name || trans.value.customCt,
+  custom_cu: settings.value.custom_cu_name || trans.value.customCu,
+  custom_cm: settings.value.custom_cm_name || trans.value.customCm,
+  custom_bd: settings.value.custom_bd_name || trans.value.customBd
 })[field] || field
 
 const getPingNodeValidation = (source) => {
@@ -1376,6 +1380,10 @@ const loadSettings = async () => {
         custom_cu: settingsData.custom_cu || '',
         custom_cm: settingsData.custom_cm || '',
         custom_bd: settingsData.custom_bd || '',
+        custom_ct_name: settingsData.custom_ct_name || '电信',
+        custom_cu_name: settingsData.custom_cu_name || '联通',
+        custom_cm_name: settingsData.custom_cm_name || '移动',
+        custom_bd_name: settingsData.custom_bd_name || 'BGP',
         theme_url: settingsData.theme_url || '',
         csp_static: settingsData.csp_static || '',
         csp_api: settingsData.csp_api || ''
@@ -1547,6 +1555,10 @@ const saveSettings = async () => {
       custom_cu: pingNodeValidation.values.custom_cu,
       custom_cm: pingNodeValidation.values.custom_cm,
       custom_bd: pingNodeValidation.values.custom_bd,
+      custom_ct_name: settings.value.custom_ct_name.trim(),
+      custom_cu_name: settings.value.custom_cu_name.trim(),
+      custom_cm_name: settings.value.custom_cm_name.trim(),
+      custom_bd_name: settings.value.custom_bd_name.trim(),
       csp_static: settings.value.csp_static || '',
       csp_api: settings.value.csp_api || ''
     }

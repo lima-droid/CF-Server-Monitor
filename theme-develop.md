@@ -187,6 +187,10 @@ Headers: (可选) Authorization: Bearer <jwt>, X-Turnstile-Token / X-Turnstile-V
   "turnstile_enabled": true,
   "turnstile_login_enabled": true,
   "turnstile_site_key": "1x00000000000000000000AA",
+  "custom_ct_name": "电信",
+  "custom_cu_name": "联通",
+  "custom_cm_name": "移动",
+  "custom_bd_name": "BGP",
   "site_title": "My Server Monitor",
   "preferred_theme": "auto",
   "default_language": "auto",
@@ -214,6 +218,7 @@ Headers: (可选) Authorization: Bearer <jwt>, X-Turnstile-Token / X-Turnstile-V
 | `turnstile_enabled`  | boolean      | 是否启用全局 API 人机验证 |
 | `turnstile_login_enabled` | boolean | 是否启用登录页人机验证 |
 | `turnstile_site_key` | string       | Turnstile 前端公钥  |
+| `custom_ct_name` / `custom_cu_name` / `custom_cm_name` / `custom_bd_name` | string | Ping 指标显示名称；分别用于 CT、CU、CM、BGP |
 | `site_title`         | string       | 站点标题 |
 | `preferred_theme`    | string       | 默认外观：`auto` 跟随系统 / `dark` 深色 / `light` 浅色 |
 | `default_language`   | string       | 默认语言：`auto` 按浏览器语言自动选择中文或英文 / `zh` 中文 / `en` 英文 |

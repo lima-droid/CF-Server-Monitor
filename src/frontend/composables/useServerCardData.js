@@ -369,7 +369,8 @@ export function useServerCardData(props) {
 
   const threeNetDetails = computed(() => THREE_NET_DEFS
     .map(def => {
-      const label = trans.value[def.labelKey] || def.fallbackLabel
+      const customName = props.sysConfig?.[`custom_${def.key}_name`]
+      const label = String(customName || trans.value[def.labelKey] || def.fallbackLabel)
       const pingSeries = getLatencySeries('ping', def.key)
       const lossSeries = getLatencySeries('loss', def.key)
       const pointCount = Math.max(pingSeries.length, lossSeries.length, getLatencyWindowPointCount())

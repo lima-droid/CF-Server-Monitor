@@ -506,6 +506,10 @@ CORS_ALLOWED_ORIGINS=https://status.example.com,https://admin.example.com
   "turnstile_enabled": true,
   "turnstile_login_enabled": true,
   "turnstile_site_key": "1x00000000000000000000AA",
+  "custom_ct_name": "电信",
+  "custom_cu_name": "联通",
+  "custom_cm_name": "移动",
+  "custom_bd_name": "BGP",
   "site_title": "My Server Monitor",
   "display_mode": "bar",
   "preferred_theme": "auto",
@@ -533,6 +537,7 @@ CORS_ALLOWED_ORIGINS=https://status.example.com,https://admin.example.com
 | `turnstile_enabled`  | boolean      | 站点是否启用人机验证                             |
 | `turnstile_login_enabled` | boolean | 登录是否需要 Turnstile；全局 Turnstile 开启时该值也为 `true` |
 | `turnstile_site_key` | string       | Turnstile 前端公钥；前端拿到后渲染 widget          |
+| `custom_ct_name` / `custom_cu_name` / `custom_cm_name` / `custom_bd_name` | string | Ping 指标显示名称；分别用于 CT、CU、CM、BGP，默认值为电信、联通、移动、BGP |
 | `site_title`         | string       | 站点标题                                         |
 | `display_mode`       | string       | 内置前端显示模式：`bar` / `ring` / `table`        |
 | `preferred_theme`    | string       | 默认外观：`auto` 跟随系统 / `dark` 深色 / `light` 浅色 |
@@ -1323,6 +1328,10 @@ Header：`X-Turnstile-Token: <token>`（当 `site_options.turnstile_enabled` 或
     "custom_cu": "gd-cu-dualstack.ip.zstaticcdn.com",
     "custom_cm": "gd-cm-dualstack.ip.zstaticcdn.com",
     "custom_bd": "ip.zstaticcdn.com",
+    "custom_ct_name": "电信",
+    "custom_cu_name": "联通",
+    "custom_cm_name": "移动",
+    "custom_bd_name": "BGP",
     "expire_reminder": "0"
   }
 }
@@ -1331,7 +1340,7 @@ Header：`X-Turnstile-Token: <token>`（当 `site_options.turnstile_enabled` 或
 **字段分类**：
 
 - `APPEARANCE_FIELDS`（写入 `appearance_options` JSON）：`site_title`、`custom_bg`、`custom_bg_mobile`、`favicon`、`custom_head`、`custom_script`、`csp_static`、`csp_api`、`display_mode`、`preferred_theme`、`default_language`、`theme_options`
-- `SITE_FIELDS`（写入 `site_options` JSON）：`is_public`、`show_price`、`show_expire`、`show_tf`、`wss_report_enabled`、`wss_report_hours`、`frontend_ws_timeout_minutes`、`long_history_points`、通知、Turnstile、账号、Cloudflare、Ping 节点、`expire_reminder`、`notification_timezone`、`expire_notification_time`、`theme_url`、历史优化字段等站点级配置。`wss_report_hours` 是允许 Agent WSS 上报的 UTC 小时数组（`0-23`）；缺失时默认全天，空数组表示所有时段均关闭
+- `SITE_FIELDS`（写入 `site_options` JSON）：`is_public`、`show_price`、`show_expire`、`show_tf`、`wss_report_enabled`、`wss_report_hours`、`frontend_ws_timeout_minutes`、`long_history_points`、通知、Turnstile、账号、Cloudflare、Ping 节点及其显示名称（`custom_ct_name`、`custom_cu_name`、`custom_cm_name`、`custom_bd_name`）、`expire_reminder`、`notification_timezone`、`expire_notification_time`、`theme_url`、历史优化字段等站点级配置。`wss_report_hours` 是允许 Agent WSS 上报的 UTC 小时数组（`0-23`）；缺失时默认全天，空数组表示所有时段均关闭
 - 任何未列出的字段会被忽略
 
 **特殊处理**：
