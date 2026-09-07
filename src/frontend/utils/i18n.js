@@ -560,7 +560,7 @@ const translations = reactive({
     networkTraffic: '网络',
     processes: '进程',
     connections: '连接数',
-    latencyMonitor: '延迟监控',
+    latencyMonitor: '延迟',
     packetLoss: '丢包率',
     databaseUpgradeRequired: '请进入后台点击升级数据库',
     swap: '交换分区',
