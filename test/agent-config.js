@@ -226,6 +226,6 @@ assert.deepEqual(validatePingNode('foo:443'), { valid: true, value: 'foo:443' })
 assert.equal(validatePingNode('foo:bar').valid, false);
 assert.deepEqual(validatePingNode('2001:db8::1'), { valid: true, value: '[2001:db8::1]' });
 assert.deepEqual(validatePingNode('[2001:db8::1]:443'), { valid: true, value: '[2001:db8::1]:443' });
-assert.equal(validatePingNode('2001:db8::1:443').valid, false);
+assert.deepEqual(validatePingNode('2001:db8::1:443'), { valid: true, value: '[2001:db8::1:443]' });
 
 console.log('agent config tests passed');
