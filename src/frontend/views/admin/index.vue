@@ -1696,16 +1696,9 @@ const getUninstallCommand = () => {
     return uninstallCommand
   }
   if (deleteTargetOs.value === 'windows') {
-    return `irm ${HOST}/cf-server-monitor.ps1 -OutFile cf-server-monitor.ps1; powershell -ExecutionPolicy Bypass -File .\\cf-server-monitor.ps1 uninstall`
+    return `$script = Join-Path (Get-Location) 'uninstall-cf-probe.ps1'; Invoke-WebRequest -Uri '${HOST}/uninstall.ps1' -OutFile $script -UseBasicParsing; PowerShell -ExecutionPolicy Bypass -File $script`
   }
-  const shell = deleteTargetOs.value === 'alpine' || deleteTargetOs.value === 'openwrt' ? 'sh' : 'bash'
-  const sudoPrefix = deleteTargetOs.value === 'mac' ? 'sudo ' : ''
-  const script = deleteTargetOs.value === 'alpine' ? 'install-alpine.sh'
-    : deleteTargetOs.value === 'openwrt' ? 'install-openwrt.sh'
-    : deleteTargetOs.value === 'mac' ? 'install-mac.sh'
-    : deleteTargetOs.value === 'synology' ? 'install-synology.sh'
-    : 'install.sh'
-  return `curl -sL ${HOST}/${script} | ${sudoPrefix}${shell} -s uninstall`
+  return `curl -fsSL '${HOST}/uninstall.sh' | sh -s`
 }
 
 const copyCmd = (serverId) => {

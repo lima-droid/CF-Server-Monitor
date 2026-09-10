@@ -23,11 +23,9 @@
         <div class="form-group flex-1 mb-3">
           <label class="form-label">{{ trans.targetOs }}</label>
           <select :value="deleteTargetOs" class="form-select" @change="$emit('update:delete-target-os', $event.target.value)">
-            <option value="linux">Linux (Ubuntu/Debian/CentOS/FreeBSD)</option>
-            <option value="alpine">Alpine Linux</option>
-            <option value="openwrt">OpenWrt / LEDE / ImmortalWrt</option>
-            <option value="mac">macOS (Intel / Apple Silicon)</option>
-            <option value="synology">Synology DSM (群晖)</option>
+            <option value="linux">Linux (systemd)</option>
+            <option value="unix">OpenWrt/Alpine/Synology DSM/FreeBSD</option>
+            <option value="mac">macOS</option>
             <option value="windows">Windows</option>
           </select>
         </div>
