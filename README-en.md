@@ -10,7 +10,7 @@ A lightweight multi-server monitoring dashboard built on Cloudflare Workers, D1,
   <a href="README-en.md">English</a>
 </p>
 
-[![Workers](https://img.shields.io/badge/Workers-2.8.7%20Stable-f38020?style=flat-square&logo=cloudflare&logoColor=white)](version.json)
+[![Workers](https://img.shields.io/badge/Workers-2.8.8%20Beta1-f38020?style=flat-square&logo=cloudflare&logoColor=white)](version.json)
 [![GitHub Stars](https://img.shields.io/github/stars/huilang-me/CF-Server-Monitor?style=flat-square&logo=github)](https://github.com/huilang-me/CF-Server-Monitor/stargazers)
 [![GitHub Forks](https://img.shields.io/github/forks/huilang-me/CF-Server-Monitor?style=flat-square&logo=github)](https://github.com/huilang-me/CF-Server-Monitor/forks)
 [![License](https://img.shields.io/badge/License-MIT-16a34a?style=flat-square)](#license)
@@ -100,6 +100,7 @@ Core flow:
 
 Recent changes:
 
+- `2.8.8`: Login now issues a `cfsm_ua` cookie so Cloudflare security rules can let the browser through; added an App Password for third-party apps / iOS widgets to gain additional read access while bypassing Turnstile.
 - `2.8.7`: Optimized scheduled task logic to reduce CPU usage and avoid exceeding free-tier limits. `/update` now enforces a 512KB body limit and returns 413 beyond it; Agent WSS connections for deleted servers are closed within 2 minutes; WSS reports now validate frame size and authenticated sessions survive transient D1 errors; batched samples keep only the latest 300. Added a server-side auto-discovery mechanism to automatically bind the server ID. Add custom User-Agent.Import and export include settings options. Resource alerts now support TCP/UDP connection counts. When no public IP is reported, fall back to the request header's source address.
 - `2.8.6`: WSS frontend subscription with 250ms batch reporting, added SMTP notification channel, added monthly traffic threshold alert, removed legacy database compatibility, added Docker installation method.
 - `2.8.5`: Added custom Ping node names, ICMP mode, optimized WSS response logic, API interface optimization, and optimized frontend. Also added 4 default Ping nodes.
@@ -306,7 +307,7 @@ npm run build:github-page
 | --- | --- |
 | Site | Title, background, favicon, default display mode, default appearance, default language, three-net details, public access, auto discovery (with a copy button for the `-id`-free Linux install command) |
 | Server | HTTP/WSS report intervals, collect interval, ping nodes, network interfaces, monthly traffic, price, expiration, auto-renew |
-| Security | Admin account, password, JWT Secret, custom User-Agent, Turnstile |
+| Security | Admin account, password, JWT Secret, custom User-Agent, Turnstile, app access password |
 | Notifications | Offline alerts, expiration reminders, resource alerts, test notification |
 | Appearance | Custom CSS, custom `<head>`, CSP allowlists, Mikus mode |
 | Database | Upgrade database, clear history |
@@ -325,6 +326,10 @@ Usage:
 5. Put the server ID in the widget Parameter field, or use `id:SERVER_ID`.
 
 The widget shows online status, CPU, memory, disk, monthly traffic, realtime upload/download speed, and update time. The actual refresh interval is controlled by iOS.
+
+All three scripts support `CONFIG.userAgent`. If the Cloudflare security rule above is enabled, set it to the custom UA from the admin panel, otherwise the widget requests are challenged. Leave it empty to use Scriptable's default UA.
+
+If the site is not public, or the widget should show hidden servers, put the admin panel's Security → App Access Password into `CONFIG.appPassword`; the scripts send it as the `X-App-Password` header.
 
 To watch several servers at once, use [scripts/ios-scriptable-widget-multi.js](scripts/ios-scriptable-widget-multi.js): leave the Parameter empty to show all public servers, set `server-a,server-b` to show only those, or set a single server to get the detail view (with three-net latency bars). Servers are paged automatically (1 per page on small/medium widgets, 2 per page on large ones), and `page:2` (also `p2`, `2`, or `第2页`) selects a page for smart stacks. It requests `/api/servers` (the full list), so it costs more D1 reads than the single-server widget when you have many servers.
 
@@ -437,6 +442,53 @@ Send a test notification before saving.
 ### Turnstile
 
 Cloudflare Turnstile can be enabled from the admin panel to reduce abuse of public APIs and login endpoints. In multi-site mode, use the same Site Key across sites when Turnstile is enabled.
+
+### App Access Password
+
+Admin panel → Security → App Access Password accepts a 16-32 character password (printable ASCII, no spaces). Leave it blank to disable. Third-party apps and iOS widgets that send `X-App-Password: <password>` get read-only access equivalent to a logged-in viewer: data from private sites, `is_hidden` servers, and history beyond 24 hours.
+
+This password cannot be used for admin operations. Change it in the admin panel if it leaks. When global Turnstile is enabled, requests carrying the correct password skip it too; Turnstile on the login endpoint still applies.
+
+### Cloudflare security rule
+
+When scanners keep hitting the monitor domain, every request still counts against the Workers request quota. Cloudflare can challenge requests before they reach the Worker: only Agents carrying the custom UA and browsers holding the `cfsm_ua` cookie from a successful admin login are let through.
+
+**Requirements**
+
+- The domain is hosted on Cloudflare and bound to the Worker.
+- Agent version ≥ `1.1.1`, Workers version ≥ `2.8.7`.
+
+**Steps**
+
+1. Open the admin panel → Settings → Security → Custom UA, enter a custom string (the examples below use `myUa/name`), and save.
+2. Wait a few minutes for the new UA to reach every Agent through the `/update` response header or the WSS ack before continuing.
+3. In the Cloudflare dashboard → select the bound domain → Security → Security rules → Create rule:
+   - **Expression** (replace the host and UA with your own values):
+
+     ```
+     (http.host eq "tz.example.com" and http.user_agent ne "myUa/name" and not http.cookie contains "cfsm_ua=myUa%2Fname")
+     ```
+
+   - **Action**: Managed Challenge or JavaScript Challenge.
+
+   The expression challenges only requests that target the monitor host, do not carry the custom UA, and do not carry the admin login cookie. Agents pass via their UA; a logged-in browser passes via `cfsm_ua`.
+
+4. After saving, a private window should hit the challenge page, while the admin panel no longer does once you are logged in.
+
+**About the `cfsm_ua` cookie**
+
+- A successful login sets `cfsm_ua` alongside `cfsm_auth`. Its value is the custom UA from the admin panel, with `HttpOnly; Path=/; SameSite=Lax`, and it expires together with the login (7 days).
+- The value is URL-encoded, so `myUa/name` is stored as `myUa%2Fname`; match the **encoded** form in the rule.
+- Logout clears it, and it never exists while logged out. Sessions created before this feature was deployed need to log in once more.
+
+**Notes**
+
+- `http.host` must be the exact hostname the monitor is served on (for example `tz.example.com`). A root-domain rule will not match the monitor, and a wildcard or `contains` match will challenge other services on the same domain.
+- **Do not change the custom UA while the rule is enabled.** Agents would report a UA that no longer matches. The correct order is: pause the rule → change the UA → wait a few minutes for it to reach the Agents → update both the UA and the encoded cookie value in the rule → re-enable the rule.
+- The iOS Scriptable widget, custom scripts, and third-party API clients do not carry the admin cookie and will be challenged. They must send `User-Agent: <custom UA>` to pass.
+- Once the challenge is in place, you can turn off the global Turnstile verification in the admin panel to avoid verifying the same request twice.
+- This rule reduces scanner noise only: `cfsm_ua` is a fixed, forgeable string and must not be treated as access control.
+- Opening the admin panel while logged out means passing the challenge first. The login request relies on the `cf_clearance` cookie from that challenge; if it has expired and login seems to do nothing, reload the page to pass the challenge again.
 
 ### CORS
 

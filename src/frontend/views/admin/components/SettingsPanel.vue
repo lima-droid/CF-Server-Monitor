@@ -677,7 +677,10 @@
           <div class="form-group flex-1">
             <label class="form-label">
               {{ trans.customUserAgent }}
-              <HelpTooltip :text="trans.customUserAgentTip" />
+              <HelpTooltip>
+                <span class="help-tooltip-text">{{ trans.customUserAgentTip }}</span>
+                <a class="help-tooltip-link" :href="CUSTOM_USER_AGENT_DOC_URL" target="_blank" rel="noopener noreferrer">{{ trans.customUserAgentDocs }}</a>
+              </HelpTooltip>
             </label>
             <div class="password-input-wrapper">
               <input
@@ -698,6 +701,33 @@
               </button>
             </div>
             <p v-if="userAgentInvalid" class="text-red text-sm mt-1">{{ trans.customUserAgentInvalid }}</p>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group flex-1">
+            <label class="form-label">
+              {{ trans.appPassword }}
+              <HelpTooltip :text="trans.appPasswordTip" />
+            </label>
+            <div class="password-input-wrapper">
+              <input
+                v-model.trim="settings.app_password"
+                type="text"
+                name="app_password"
+                autocomplete="new-password"
+                data-lpignore="true"
+                data-1p-ignore="true"
+                data-bwignore="true"
+                data-form-type="other"
+                :class="['form-input', { 'secret-input-masked': !passwordVisible.appPassword, 'input-invalid': appPasswordInvalid }]"
+                :placeholder="trans.appPasswordPlaceholder"
+              >
+              <button type="button" class="password-toggle" @click="$emit('toggle-password', 'appPassword')">
+                {{ passwordVisible.appPassword ? '🙈' : '👁️' }}
+              </button>
+            </div>
+            <p v-if="appPasswordInvalid" class="text-red text-sm mt-1">{{ trans.appPasswordInvalid }}</p>
           </div>
         </div>
 
@@ -852,7 +882,7 @@
 
     <div class="settings-save-bar">
       <span class="settings-save-hint">{{ trans.saveHint }}</span>
-      <button @click="$emit('save-settings')" class="btn btn-primary btn-lg" :disabled="saving || hasPingNodeErrors || userAgentInvalid">{{ saving ? '⏳' : '💾' }} {{ saving ? trans.saving : trans.saveConfig }}</button>
+      <button @click="$emit('save-settings')" class="btn btn-primary btn-lg" :disabled="saving || hasPingNodeErrors || userAgentInvalid || appPasswordInvalid">{{ saving ? '⏳' : '💾' }} {{ saving ? trans.saving : trans.saveConfig }}</button>
     </div>
   </div>
 </template>
@@ -866,6 +896,9 @@ import { LANGUAGES, LANGUAGE_MAP } from '../../../locales'
 import { NOTIFICATION_LANGUAGE_CODES } from '../../../../shared/languages.js'
 
 const languages = LANGUAGES
+
+// 自定义 UA 与 Cloudflare 放行规则的说明见 README「安全建议」章节。
+const CUSTOM_USER_AGENT_DOC_URL = 'https://github.com/huilang-me/CF-Server-Monitor#cloudflare-安全规则拦截'
 
 // 通知语言只支持后端已有文案的语种；选项固定显示各语言原生名称，不随界面语言翻译。
 const notificationLanguages = NOTIFICATION_LANGUAGE_CODES
@@ -1487,6 +1520,18 @@ const USER_AGENT_ALLOWED_RE = /^[A-Za-z0-9 _.\-/,:;()+=@#*?~]*$/
 const userAgentInvalid = computed(() => {
   const value = String(props.settings.ua ?? '').trim()
   return value.length > 100 || !USER_AGENT_ALLOWED_RE.test(value)
+})
+
+// 与服务端 validateAppPassword 保持一致：留空不启用，启用时 16-32 位可见 ASCII。
+const APP_PASSWORD_MIN_LENGTH = 16
+const APP_PASSWORD_MAX_LENGTH = 32
+const APP_PASSWORD_ALLOWED_RE = /^[\x21-\x7E]*$/
+const appPasswordInvalid = computed(() => {
+  const value = String(props.settings.app_password ?? '').trim()
+  if (!value) return false
+  return value.length < APP_PASSWORD_MIN_LENGTH ||
+    value.length > APP_PASSWORD_MAX_LENGTH ||
+    !APP_PASSWORD_ALLOWED_RE.test(value)
 })
 
 const validatePingNodes = () => !hasPingNodeErrors.value
